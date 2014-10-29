@@ -326,6 +326,9 @@ struct pv_mmu_ops {
 			   phys_addr_t phys, pgprot_t flags);
 };
 
+struct mcs_spinlock;
+struct qspinlock;
+
 struct arch_spinlock;
 #ifdef CONFIG_SMP
 #include <asm/spinlock_types.h>
@@ -333,9 +336,26 @@ struct arch_spinlock;
 typedef u16 __ticket_t;
 #endif
 
+#ifdef CONFIG_QUEUE_SPINLOCK
+enum pv_lock_stats {
+	PV_HALT_QHEAD,		/* Queue head halting	    */
+	PV_HALT_QNODE,		/* Other queue node halting */
+	PV_HALT_ABORT,		/* Halting aborted	    */
+	PV_WAKE_KICKED,		/* Wakeup by kicking	    */
+	PV_WAKE_SPURIOUS,	/* Spurious wakeup	    */
+	PV_KICK_NOHALT		/* Kick but CPU not halted  */
+};
+#endif
+
 struct pv_lock_ops {
+#ifdef CONFIG_QUEUE_SPINLOCK
+	struct paravirt_callee_save kick_cpu;
+	struct paravirt_callee_save lockstat;
+	struct paravirt_callee_save lockwait;
+#else
 	struct paravirt_callee_save lock_spinning;
 	void (*unlock_kick)(struct arch_spinlock *lock, __ticket_t ticket);
+#endif
 };
 
 /* This contains all the paravirt structures: we get a convenient

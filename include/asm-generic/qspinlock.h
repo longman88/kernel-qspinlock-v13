@@ -67,6 +67,7 @@ static __always_inline int queue_spin_trylock(struct qspinlock *lock)
 	return 0;
 }
 
+#ifndef queue_spin_lock
 extern void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val);
 
 /**
@@ -82,6 +83,7 @@ static __always_inline void queue_spin_lock(struct qspinlock *lock)
 		return;
 	queue_spin_lock_slowpath(lock, val);
 }
+#endif
 
 #ifndef queue_spin_unlock
 /**
