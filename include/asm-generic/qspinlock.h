@@ -98,6 +98,13 @@ static __always_inline void queue_spin_unlock(struct qspinlock *lock)
 }
 #endif
 
+#ifndef virt_queue_spin_lock
+static __always_inline bool virt_queue_spin_lock(struct qspinlock *lock)
+{
+	return false;
+}
+#endif
+
 /*
  * Initializier
  */
